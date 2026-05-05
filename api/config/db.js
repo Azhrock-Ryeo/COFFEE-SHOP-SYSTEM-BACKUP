@@ -1,6 +1,7 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
+// DB connection config
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -8,10 +9,12 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME
 });
 
+// safety check
 if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_NAME) {
   console.error('Missing DB environment variables');
 }
 
+// establish connection
 db.connect((err) => {
   if (err) {
     console.error('MySQL connection failed:', err);
