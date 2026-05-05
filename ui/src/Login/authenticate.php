@@ -1,6 +1,6 @@
 <?php
 session_start();
-$conn = new mysqli("localhost", "root", "", "coffeeshop_db");
+$conn = new mysqli("localhost", "root", "", "coffee_shop_db");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = $_POST['password'];
 
     // IMPORTANT: column is `name`, NOT `username`
-    $stmt = $conn->prepare("SELECT * FROM user_admin_tb WHERE name = ?");
+    $stmt = $conn->prepare("SELECT * FROM users WHERE name = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
 

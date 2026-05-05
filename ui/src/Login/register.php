@@ -1,5 +1,5 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "coffeeshop_db");
+$conn = new mysqli("localhost", "root", "", "coffee_shop_db");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -25,13 +25,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
 
         // ✅ Check username
-        $checkUser = $conn->prepare("SELECT id FROM user_admin_tb WHERE name = ?");
+        $checkUser = $conn->prepare("SELECT id FROM users WHERE name = ?");
         $checkUser->bind_param("s", $username);
         $checkUser->execute();
         $checkUser->store_result();
 
         // ✅ Check email
-        $checkEmail = $conn->prepare("SELECT id FROM user_admin_tb WHERE email = ?");
+        $checkEmail = $conn->prepare("SELECT id FROM users WHERE email = ?");
         $checkEmail->bind_param("s", $email);
         $checkEmail->execute();
         $checkEmail->store_result();
@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // ✅ INSERT with ROLE
             $stmt = $conn->prepare(
-                "INSERT INTO user_admin_tb (name, email, password, role) VALUES (?, ?, ?, ?)"
+                "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)"
             );
             $stmt->bind_param("ssss", $username, $email, $hashed, $role);
 
