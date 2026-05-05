@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import logo1 from "./assets/logo1.png";
 
 function Register() {
   const [form, setForm] = useState({
@@ -14,68 +13,77 @@ function Register() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔒 simple frontend validation
-    if (form.password !== form.confirm_password) {
-      setMessage("Passwords do not match");
-      return;
-    }
+    const res = await fetch("http://localhost:5000/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form)
+    });
 
-    try {
-      const res = await fetch("http://localhost:5000/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
-      });
+    const data = await res.json();
+    setMessage(data.message);
 
-      const data = await res.json();
-      setMessage(data.message);
-
-      if (data.message === "Registration successful") {
-        setTimeout(() => navigate("/login"), 1000);
-      }
-    } catch (error) {
-      setMessage("Server error. Please try again.");
-      console.error(error);
+    if (data.message === "Registration successful") {
+      setTimeout(() => navigate("/login"), 1000);
     }
   };
 
-return (
-  <div className="page">
-    <div className="shader"></div>
+  return (
+    <div className="page">
+      <div className="shader"></div>
 
-    <div className="logointromod">
+      <div className="logointromod">
+        <div className="register-box">
+          <h2 className="register-title">Register</h2>
 
-      <img className="logointro" src={logo1} alt="logo" />
+          {message && <div className="msg">{message}</div>}
 
-      <div className="register-box">
+          <form onSubmit={handleSubmit}>
+            <input
+              name="username"
+              type="text"
+              placeholder="Username"
+              onChange={handleChange}
+              required
+            />
 
-        <h2 className="register-title">Register</h2>
+            <input
+              name="email"
+              type="email"
+              placeholder="Email"
+              onChange={handleChange}
+              required
+            />
 
-        {message && <div className="msg">{message}</div>}
+            <input
+              name="password"
+              type="password"
+              placeholder="Password"
+              onChange={handleChange}
+              required
+            />
 
-        <form onSubmit={handleSubmit}>
-          <input name="username" type="text" placeholder="Username" onChange={handleChange} required />
-          <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
-          <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
-          <input name="confirm_password" type="password" placeholder="Confirm Password" onChange={handleChange} required />
-          <input type="submit" value="Register" />
-        </form>
+            <input
+              name="confirm_password"
+              type="password"
+              placeholder="Confirm Password"
+              onChange={handleChange}
+              required
+            />
 
-        <Link to="/login">Already have an account?</Link>
+            <input type="submit" value="Register" />
+          </form>
 
+          <Link to="/login">Already have an account?</Link>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
 }
 
 export default Register;
