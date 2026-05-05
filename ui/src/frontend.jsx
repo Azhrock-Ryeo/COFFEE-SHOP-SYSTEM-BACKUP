@@ -1,26 +1,20 @@
-import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Navbar from './components/Navbar'
 
 function App() {
-  const [products, setProducts] = useState([]);
-
-  useEffect(() => {
-    fetch("http://localhost:5000/products")
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => console.log(err));
-  }, []);
-
   return (
-    <div>
-      <h1>Coffee Shop Products</h1>
-      {products.map((product) => (
-        <div key={product.product_id}>
-          <h2>{product.name}</h2>
-          <p>Price: ${product.price}</p>
-        </div>
-      ))}
-    </div>
-  );
+    <BrowserRouter>
+      <Navbar />
+      <Routes>
+        <Route path="/home" element={<h1>Home Page</h1>} />
+        <Route path="/products" element={<h1>Products Page</h1>} />
+        <Route path="/cart" element={<h1>Cart Page</h1>} />
+        <Route path="/orders" element={<h1>Orders Page</h1>} />
+        <Route path="/profile" element={<h1>Profile Page</h1>} />
+        <Route path="/messages" element={<h1>Messages Page</h1>} />
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App
