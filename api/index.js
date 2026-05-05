@@ -9,8 +9,9 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-// route
+// routes
 app.use('/products', require('./routes/productRoutes'))
+app.use('/', require('./routes/authRoutes'));
 
 // start server
 app.listen(PORT, () => {
