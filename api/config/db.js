@@ -1,26 +1,18 @@
 const mysql = require('mysql2');
-require('dotenv').config();
 
-// DB connection config
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "coffee_shop_db"
 });
 
-// safety check
-if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_NAME) {
-  console.error('Missing DB environment variables');
-}
-
-// establish connection
 db.connect((err) => {
   if (err) {
-    console.error('MySQL connection failed:', err);
-    return;
+    console.error('DB error:', err);
+  } else {
+    console.log('MySQL Connected');
   }
-  console.log('MySQL Connected!');
 });
 
 module.exports = db;

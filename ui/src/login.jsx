@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-function Login() {
+function Login({ setUser }) {
   const [form, setForm] = useState({ username: "", password: "" });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -13,51 +13,34 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("http://localhost:5000/login", {
+    const res = await fetch("http://localhost:5000/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
+      body: JSON.stringify(form),
     });
 
     const data = await res.json();
     setMessage(data.message);
 
     if (data.message === "Login success") {
-      navigate("/"); // or dashboard later
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user); // ← this triggers App to re-render
+      navigate("/home");
     }
   };
 
   return (
     <div className="page">
       <div className="shader"></div>
-
       <div className="logointromod">
-        
         <div className="register-box">
           <h2 className="register-title">Login</h2>
-
           {message && <div className="msg">{message}</div>}
-
           <form onSubmit={handleSubmit}>
-            <input
-              name="username"
-              type="text"
-              placeholder="Username"
-              onChange={handleChange}
-              required
-            />
-
-            <input
-              name="password"
-              type="password"
-              placeholder="Password"
-              onChange={handleChange}
-              required
-            />
-
+            <input name="username" type="text" placeholder="Username" onChange={handleChange} required />
+            <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
             <input type="submit" value="Login" />
           </form>
-
           <Link to="/register">Don't have an account?</Link>
         </div>
       </div>

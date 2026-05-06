@@ -35,19 +35,27 @@ const register = async (req, res) => {
 const login = (req, res) => {
     const { username, password } = req.body;
 
-        db.query("SELECT * FROM users WHERE name=?", [username], async (err, result) => {
+    db.query("SELECT * FROM users WHERE name=?", [username], async (err, result) => {
         if (result.length === 0) {
             return res.json({ message: "User not found" });
         }
 
         const user = result[0];
-        const match = await bcrypt.compare(password, user.password); // Check if passwords match
+        const match = await bcrypt.compare(password, user.password);
 
         if (!match) {
             return res.json({ message: "Invalid password" });
         }
 
-        res.json({ message: "Login success" });
+        // ✅ Return user info so the frontend can save it
+        res.json({ 
+        message: "Login success",
+        user: { 
+        id: user.user_id, 
+        username: user.name, 
+        role: user.role 
+    }
+});
     });
 };
 
