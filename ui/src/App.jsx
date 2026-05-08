@@ -6,8 +6,8 @@ import Login from "./login";
 import Register from "./register";
 import Home from "./pages/Home";
 import AdminDashboard from "./admin/AdminDashboard";
+
 import music from "./assets/music.mp3";
-import AdminDashboard from "./admin/AdminDashboard";
 
 function App() {
   const [user, setUser] = useState(() =>
