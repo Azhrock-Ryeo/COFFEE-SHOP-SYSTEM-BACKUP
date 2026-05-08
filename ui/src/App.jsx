@@ -5,7 +5,7 @@ import Navbar from "./components/Navbar";
 import Login from "./login";
 import Register from "./register";
 import Home from "./pages/Home";
-
+import AdminDashboard from "./admin/AdminDashboard";
 import music from "./assets/music.mp3";
 
 function App() {
@@ -19,7 +19,10 @@ function App() {
   useEffect(() => {
     const enableAudio = async () => {
       try {
-        await audioRef.current?.play();
+        if (audioRef.current) {
+          audioRef.current.volume = 0.3; // ✅ 30% volume
+          await audioRef.current.play();
+        }
       } catch (err) {
         console.log("Waiting for user interaction...");
       }
@@ -203,7 +206,10 @@ function App() {
               )
             }
           />
+          {/* ADMIN */}
+          <Route path="/admin" element={<AdminDashboard />} />
 
+          <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
 
       </BrowserRouter>
