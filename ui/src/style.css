@@ -47,7 +47,7 @@
    ═══════════════════════════════════════════════ */
 body {
   font-family: var(--sans);
-  background: url('assets/back.gif') center center fixed;
+  background-color: #f5eee9;
   background-size: cover;
   background-color: var(--ink);
   min-height: 100vh;

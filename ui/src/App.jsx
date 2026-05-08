@@ -6,6 +6,7 @@ import Login from "./login";
 import Register from "./register";
 import Home from "./pages/Home";
 import AdminDashboard from "./admin/AdminDashboard";
+import Products from "./pages/Products";
 
 import music from "./assets/music.mp3";
 
@@ -93,27 +94,15 @@ function App() {
 
           {/* PRODUCTS */}
           <Route
-            path="/products"
-            element={
-              user ? (
-                <>
-                  <Navbar setUser={setUser} />
-
-                  <div
-                    style={{
-                      padding: "50px",
-                      color: "white",
-                      fontSize: "2rem"
-                    }}
-                  >
-                    ☕ Products Page
-                  </div>
-                </>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
+  path="/products"
+  element={
+    user ? (
+      <Products setUser={setUser} />
+    ) : (
+      <Navigate to="/login" />
+    )
+  }
+/>
 
           {/* CART */}
           <Route
