@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import Login from "./login";
 import Register from "./register";
+import Home from "./pages/Home";
+
 import music from "./assets/music.mp3";
 
 function App() {
@@ -13,6 +15,7 @@ function App() {
 
   const audioRef = useRef(null);
 
+  // AUTO PLAY MUSIC AFTER USER INTERACTION
   useEffect(() => {
     const enableAudio = async () => {
       try {
@@ -42,44 +45,62 @@ function App() {
       </audio>
 
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
 
+        <Routes>
+
+          {/* DEFAULT */}
+          <Route
+            path="/"
+            element={<Navigate to="/login" />}
+          />
+
+          {/* LOGIN */}
           <Route
             path="/login"
             element={
-              user ? <Navigate to="/home" /> : <Login setUser={setUser} />
+              user
+                ? <Navigate to="/home" />
+                : <Login setUser={setUser} />
             }
           />
 
+          {/* REGISTER */}
           <Route
             path="/register"
             element={
-              user ? <Navigate to="/home" /> : <Register setUser={setUser} />
+              user
+                ? <Navigate to="/home" />
+                : <Register setUser={setUser} />
             }
           />
 
+          {/* HOME */}
           <Route
             path="/home"
             element={
-              user ? (
-                <>
-                  <Navbar setUser={setUser} />
-                  <h1>Home</h1>
-                </>
-              ) : (
-                <Navigate to="/login" />
-              )
+              user
+                ? <Home setUser={setUser} />
+                : <Navigate to="/login" />
             }
           />
 
+          {/* PRODUCTS */}
           <Route
             path="/products"
             element={
               user ? (
                 <>
                   <Navbar setUser={setUser} />
-                  <h1>Products</h1>
+
+                  <div
+                    style={{
+                      padding: "50px",
+                      color: "white",
+                      fontSize: "2rem"
+                    }}
+                  >
+                    ☕ Products Page
+                  </div>
                 </>
               ) : (
                 <Navigate to="/login" />
@@ -87,13 +108,23 @@ function App() {
             }
           />
 
+          {/* CART */}
           <Route
             path="/cart"
             element={
               user ? (
                 <>
                   <Navbar setUser={setUser} />
-                  <h1>Cart</h1>
+
+                  <div
+                    style={{
+                      padding: "50px",
+                      color: "white",
+                      fontSize: "2rem"
+                    }}
+                  >
+                    🛒 Cart Page
+                  </div>
                 </>
               ) : (
                 <Navigate to="/login" />
@@ -101,13 +132,23 @@ function App() {
             }
           />
 
+          {/* ORDERS */}
           <Route
             path="/orders"
             element={
               user ? (
                 <>
                   <Navbar setUser={setUser} />
-                  <h1>Orders</h1>
+
+                  <div
+                    style={{
+                      padding: "50px",
+                      color: "white",
+                      fontSize: "2rem"
+                    }}
+                  >
+                    📦 Orders Page
+                  </div>
                 </>
               ) : (
                 <Navigate to="/login" />
@@ -115,13 +156,23 @@ function App() {
             }
           />
 
+          {/* PROFILE */}
           <Route
             path="/profile"
             element={
               user ? (
                 <>
                   <Navbar setUser={setUser} />
-                  <h1>Profile</h1>
+
+                  <div
+                    style={{
+                      padding: "50px",
+                      color: "white",
+                      fontSize: "2rem"
+                    }}
+                  >
+                    👤 Profile Page
+                  </div>
                 </>
               ) : (
                 <Navigate to="/login" />
@@ -129,20 +180,32 @@ function App() {
             }
           />
 
+          {/* MESSAGES */}
           <Route
             path="/messages"
             element={
               user ? (
                 <>
                   <Navbar setUser={setUser} />
-                  <h1>Messages</h1>
+
+                  <div
+                    style={{
+                      padding: "50px",
+                      color: "white",
+                      fontSize: "2rem"
+                    }}
+                  >
+                    💬 Messages Page
+                  </div>
                 </>
               ) : (
                 <Navigate to="/login" />
               )
             }
           />
+
         </Routes>
+
       </BrowserRouter>
     </>
   );
