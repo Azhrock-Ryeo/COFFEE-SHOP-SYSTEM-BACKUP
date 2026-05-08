@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import Login from "./login";
 import Register from "./register";
+import Home from "./pages/Home";
+import AdminDashboard from "./admin/AdminDashboard";
 import music from "./assets/music.mp3";
 import AdminDashboard from "./admin/AdminDashboard";
 
@@ -14,6 +16,7 @@ function App() {
 
   const audioRef = useRef(null);
 
+  // AUTO PLAY MUSIC AFTER USER INTERACTION
   useEffect(() => {
     const enableAudio = async () => {
       try {
@@ -46,30 +49,65 @@ function App() {
       </audio>
 
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
 
+        <Routes>
+
+          {/* DEFAULT */}
+          <Route
+            path="/"
+            element={<Navigate to="/login" />}
+          />
+
+          {/* LOGIN */}
           <Route
             path="/login"
             element={
-              user ? <Navigate to="/home" /> : <Login setUser={setUser} />
+              user
+                ? <Navigate to="/home" />
+                : <Login setUser={setUser} />
             }
           />
 
+          {/* REGISTER */}
           <Route
             path="/register"
             element={
-              user ? <Navigate to="/home" /> : <Register setUser={setUser} />
+              user
+                ? <Navigate to="/home" />
+                : <Register setUser={setUser} />
             }
           />
 
+          {/* HOME */}
           <Route
             path="/home"
+            element={
+              user
+                ? <Home setUser={setUser} />
+                : <Navigate to="/login" />
+            }
+          />
+
+          {/* ADMIN */}
+          <Route path="/admin" element={<AdminDashboard />} />
+
+          {/* PRODUCTS */}
+          <Route
+            path="/products"
             element={
               user ? (
                 <>
                   <Navbar setUser={setUser} />
-                  <h1>Home</h1>
+
+                  <div
+                    style={{
+                      padding: "50px",
+                      color: "white",
+                      fontSize: "2rem"
+                    }}
+                  >
+                    ☕ Products Page
+                  </div>
                 </>
               ) : (
                 <Navigate to="/login" />
@@ -77,11 +115,107 @@ function App() {
             }
           />
 
+          {/* CART */}
+          <Route
+            path="/cart"
+            element={
+              user ? (
+                <>
+                  <Navbar setUser={setUser} />
+
+                  <div
+                    style={{
+                      padding: "50px",
+                      color: "white",
+                      fontSize: "2rem"
+                    }}
+                  >
+                    🛒 Cart Page
+                  </div>
+                </>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+
+          {/* ORDERS */}
+          <Route
+            path="/orders"
+            element={
+              user ? (
+                <>
+                  <Navbar setUser={setUser} />
+
+                  <div
+                    style={{
+                      padding: "50px",
+                      color: "white",
+                      fontSize: "2rem"
+                    }}
+                  >
+                    📦 Orders Page
+                  </div>
+                </>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+
+          {/* PROFILE */}
+          <Route
+            path="/profile"
+            element={
+              user ? (
+                <>
+                  <Navbar setUser={setUser} />
+
+                  <div
+                    style={{
+                      padding: "50px",
+                      color: "white",
+                      fontSize: "2rem"
+                    }}
+                  >
+                    👤 Profile Page
+                  </div>
+                </>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+
+          {/* MESSAGES */}
+          <Route
+            path="/messages"
+            element={
+              user ? (
+                <>
+                  <Navbar setUser={setUser} />
+
+                  <div
+                    style={{
+                      padding: "50px",
+                      color: "white",
+                      fontSize: "2rem"
+                    }}
+                  >
+                    💬 Messages Page
+                  </div>
+                </>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
           {/* ADMIN */}
           <Route path="/admin" element={<AdminDashboard />} />
 
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
+
       </BrowserRouter>
     </>
   );
