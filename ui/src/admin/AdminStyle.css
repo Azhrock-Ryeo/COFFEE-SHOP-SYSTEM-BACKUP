@@ -1,0 +1,142 @@
+.admin-container {
+  padding: 40px;
+  color: white;
+  background: #111;
+  min-height: 100vh;
+  font-family: "Comic Sans MS", sans-serif;
+}
+
+.admin-title {
+  margin-bottom: 25px;
+  color: white;
+  font-family: "Comic Sans MS", sans-serif;
+}
+
+.admin-form-box {
+  background: #1b1b1b;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  border: 1px solid #333;
+}
+
+.admin-subtitle {
+  margin-bottom: 20px;
+  color: white;
+  font-family: "Comic Sans MS", sans-serif;
+}
+
+.admin-form {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr auto;
+  gap: 10px;
+}
+
+.admin-input {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #222;
+  color: white;
+  outline: none;
+}
+
+.admin-input:focus {
+  border-color: #0d6efd;
+}
+
+.admin-submit-btn {
+  border: none;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.add-btn {
+  background: #0d6efd;
+}
+
+.update-btn {
+  background: #f0ad4e;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1b1b1b;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.admin-table thead tr {
+  background: #222;
+}
+
+.admin-table th {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #444;
+}
+
+.admin-table td {
+  padding: 15px;
+  border-bottom: 1px solid #333;
+}
+
+.edit-btn {
+  background: #f0ad4e;
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.delete-btn {
+  background: #dc3545;
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.no-products {
+  text-align: center;
+  padding: 20px;
+}
+
+.preview-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-top: 20px;
+  border: 1px solid #444;
+}
+
+.table-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.category-badge {
+  background: #0d6efd;
+  padding: 6px 12px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.ribbon-badge {
+  background: #dc3545;
+  padding: 6px 12px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: bold;
+}

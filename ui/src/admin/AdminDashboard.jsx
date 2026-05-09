@@ -1,205 +1,240 @@
 import { useEffect, useState } from "react";
+import "./AdminStyle.css";
 
 function AdminDashboard() {
-
   const [products, setProducts] = useState([]);
 
   const [form, setForm] = useState({
     name: "",
-    description: "",
+    category: "",
     price: "",
-    stock: ""
+    stock: "",
   });
 
+  const [editId, setEditId] = useState(null);
 
   // FETCH PRODUCTS
   const fetchProducts = async () => {
     try {
       const res = await fetch("http://localhost:5000/products");
-
       const data = await res.json();
 
-      setProducts(data);
-
-    } catch (error) {
-      console.log(error);
+      setProducts(data.reverse());
+    } catch (err) {
+      console.log(err);
     }
   };
-
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-
-  // ADD PRODUCT
-  const addProduct = async (e) => {
+  // CREATE / UPDATE
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      if (editId) {
+        await fetch(`http://localhost:5000/products/${editId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        });
 
-      await fetch("http://localhost:5000/products", {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(form)
-      });
+        setEditId(null);
+      } else {
+        await fetch("http://localhost:5000/products", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        });
+      }
 
       setForm({
         name: "",
-        description: "",
+        category: "",
         price: "",
-        stock: ""
+        stock: "",
       });
 
       fetchProducts();
-
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     }
   };
 
-
-  // DELETE PRODUCT
+  // DELETE
   const deleteProduct = async (id) => {
+    const confirmDelete = window.confirm(
+      "Delete this product?"
+    );
+
+    if (!confirmDelete) return;
 
     try {
-
       await fetch(`http://localhost:5000/products/${id}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
 
       fetchProducts();
-
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     }
   };
 
+  // EDIT
+  const editProduct = (product) => {
+    setForm({
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      stock: product.stock || "",
+    });
+
+    setEditId(product.product_id);
+  };
 
   return (
-    <div
-      style={{
-        padding: "40px",
-        color: "white"
-      }}
-    >
+    <div className="admin-container">
+      <h1 className="admin-title">
+        Admin Product Management
+      </h1>
 
-      <h1>☕ Admin Dashboard</h1>
+      {/* FORM */}
+      <div className="admin-form-box">
+        <h2 className="admin-subtitle">
+          {editId ? "Edit Product" : "Add Product"}
+        </h2>
 
+        <form
+          onSubmit={handleSubmit}
+          className="admin-form"
+        >
+          <input
+            placeholder="Product Name"
+            value={form.name}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                name: e.target.value,
+              })
+            }
+            required
+            className="admin-input"
+          />
 
-      {/* ADD PRODUCT FORM */}
-      <form
-        onSubmit={addProduct}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-          maxWidth: "400px",
-          marginTop: "20px"
-        }}
-      >
+          <input
+            placeholder="Category"
+            value={form.category}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                category: e.target.value,
+              })
+            }
+            className="admin-input"
+          />
 
-        <input
-          type="text"
-          placeholder="Product Name"
-          value={form.name}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              name: e.target.value
-            })
-          }
-        />
+          <input
+            type="number"
+            placeholder="Price"
+            value={form.price}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                price: e.target.value,
+              })
+            }
+            required
+            className="admin-input"
+          />
 
-        <input
-          type="text"
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              description: e.target.value
-            })
-          }
-        />
+          <input
+            type="number"
+            placeholder="Stock"
+            value={form.stock}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                stock: e.target.value,
+              })
+            }
+            className="admin-input"
+          />
 
-        <input
-          type="number"
-          placeholder="Price"
-          value={form.price}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              price: e.target.value
-            })
-          }
-        />
-
-        <input
-          type="number"
-          placeholder="Stock"
-          value={form.stock}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              stock: e.target.value
-            })
-          }
-        />
-
-        <button type="submit">
-          Add Product
-        </button>
-
-      </form>
-
-
-      {/* PRODUCT LIST */}
-      <div
-        style={{
-          marginTop: "40px"
-        }}
-      >
-
-        <h2>Products</h2>
-
-        {products.map((product) => (
-
-          <div
-            key={product.product_id}
-            style={{
-              border: "1px solid gray",
-              padding: "20px",
-              marginBottom: "20px",
-              borderRadius: "10px"
-            }}
+          <button
+            type="submit"
+            className={`admin-submit-btn ${
+              editId ? "update-btn" : "add-btn"
+            }`}
           >
-
-            <h3>{product.name}</h3>
-
-            <p>{product.description}</p>
-
-            <p>₱{product.price}</p>
-
-            <p>Stock: {product.stock}</p>
-
-            <button
-              onClick={() =>
-                deleteProduct(product.product_id)
-              }
-            >
-              Delete
-            </button>
-
-          </div>
-        ))}
-
+            {editId ? "Update" : "Add"}
+          </button>
+        </form>
       </div>
 
+      {/* TABLE */}
+      <table className="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {products.length > 0 ? (
+            products.map((product) => (
+              <tr key={product.product_id}>
+                <td>{product.product_id}</td>
+                <td>{product.name}</td>
+                <td>{product.category}</td>
+                <td>₱{product.price}</td>
+                <td>{product.stock}</td>
+
+                <td>
+                  <button
+                    onClick={() =>
+                      editProduct(product)
+                    }
+                    className="edit-btn"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      deleteProduct(
+                        product.product_id
+                      )
+                    }
+                    className="delete-btn"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td
+                colSpan="6"
+                className="no-products"
+              >
+                No products found
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
