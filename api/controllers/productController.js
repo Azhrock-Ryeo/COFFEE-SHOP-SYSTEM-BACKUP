@@ -1,114 +1,179 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
-/**
- *  @desc    Fetch all products from the 'products' table
- *  @route   GET /products
- */
+
+// =====================================
+// GET PRODUCTS
+// =====================================
 const getProducts = (req, res) => {
-    const sql = 'SELECT * FROM products';
-    
-    db.query(sql, (err, result) => {
 
-        if (err) {
-            console.log(err);
-            return res.status(499).json(err);
-        } 
+  const sql = `
+    SELECT *
+    FROM products
+    ORDER BY product_id DESC
+  `;
 
-        if (result && result.length === 0) {
-            return res.status(404).json({ message: "No products in stock" })
-        }
+  db.query(sql, (err, result) => {
 
-        res.json(result);
-    });
+    if (err) {
+      return res.status(500).json({
+        message: "Failed to fetch products"
+      });
+    }
+
+    res.json(result);
+
+  });
+
 };
 
-/**
- * @desc    Add a new product to the MySQL
- * @route   POST /products
- */
+
+// =====================================
+// ADD PRODUCT
+// =====================================
 const addProduct = (req, res) => {
-    const { name, description, price, stock, category_id, created_by } = req.body;
 
-    // sql query
-    const sql = `INSERT INTO products (name, description, price, stock, category_id, created_by)
-                VALUES (?, ?, ?, ?, ?, ?)`;
+  const {
+  name,
+  description,
+  category,
+  price,
+  stock,
+  image_url
+} = req.body;
 
-    db.query(sql, [name, description, price, stock, category_id, created_by], (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(499).json(err);
-        }
 
-        if (result && result.length === 0) {
-            return res.status(404).json({ message: "No products in stock" })
-        }
+  const sql = `
+  INSERT INTO products
+  (
+    name,
+    description,
+    category,
+    price,
+    stock,
+    image_url
+  )
+  VALUES (?, ?, ?, ?, ?, ?)
+`;
 
-        res.json({
-            message: "Success!",
-            new_product_id: result.insertId,
+  db.query(
+    sql,
+    [
+  name,
+  description,
+  category,
+  price,
+  stock,
+  image_url
+],
+    (err, result) => {
+
+      if (err) {
+
+        return res.status(500).json({
+          message: "Failed to add product"
         });
-    });
+
+      }
+
+      res.status(201).json({
+        message: "Product added successfully"
+      });
+
+    }
+  );
+
 };
 
-/**
- * @desc    Update an existing product's details
- * @route   PUT /products/:id
- */
 const updateProduct = (req, res) => {
-    const productId = req.params.id;
-    const { name, description, price, stock, category_id} = req.body;
 
-    const sql = `UPDATE products
-                SET name = ?, description = ?, price = ?, stock = ?, category_id = ?
-                WHERE product_id = ?`;
-    const values = [name, description, price, stock, category_id, productId];
+  const { id } = req.params;
 
-    // sql query
-    db.query(sql, values, (err, result) => {
-        if (err) {
+  const {
+    name,
+    description,
+    category,
+    price,
+    stock,
+    image_url
+  } = req.body;
+
+  const sql = `
+    UPDATE products
+    SET
+      name = ?,
+      description = ?,
+      category = ?,
+      price = ?,
+      stock = ?,
+      image_url = ?
+    WHERE product_id = ?
+  `;
+
+  db.query(
+    sql,
+    [
+      name,
+      description,
+      category,
+      price,
+      stock,
+      image_url,
+      id
+    ],
+    (err, result) => {
+
+      if (err) {
+
         console.log(err);
-        return res.status(499).json(err);
+
+        return res.status(500).json({
+          message: "Failed to update product"
+        });
+
+      }
+
+      res.json({
+        message: "Product updated successfully"
+      });
+
+    }
+  );
+
+};
+// =====================================
+// DELETE PRODUCT
+// =====================================
+const deleteProduct = (req, res) => {
+
+  const { id } = req.params;
+
+  const sql = `
+    DELETE FROM products
+    WHERE product_id = ?
+  `;
+
+  db.query(sql, [id], (err, result) => {
+
+    if (err) {
+
+      return res.status(500).json({
+        message: "Failed to delete product"
+      });
+
     }
 
-    if (result && result.length === 0) {
-        return res.status(404).json({ message: "No products in stock" })
-    }
-
-    if (result.affectedRows === -1){
-        return res.status(403).json({ message: "Product not found"});
-    }
-
-    res.json({ message: "Update Success!" })
+    res.json({
+      message: "Product deleted successfully"
     });
+
+  });
+
 };
 
-/**
- * @desc    Delete a product from the database
- * @route   DELETE /products/:id
- */
-const removeProduct = (req, res) => {
-    const productId = req.params.id;
 
-    // sql query
-    const sql = `DELETE FROM products WHERE product_id = ?`;
-
-    db.query(sql, [productId], (err, result) => {
-        if (err) {
-        console.log(err);
-        return res.status(499).json(err);
-    }
-
-    if (result && result.length === 0) {
-        return res.status(404).json({ message: "No products in stock" })
-    }
-
-
-    if (result.affectedRows === -1){
-        return res.status(403).json({ message: "Product not found" });
-    }
-    
-    res.json({ message: "Delete Success!" });
-    });
+module.exports = {
+  getProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct
 };
-
-module.exports = { getProducts, addProduct, updateProduct, removeProduct };

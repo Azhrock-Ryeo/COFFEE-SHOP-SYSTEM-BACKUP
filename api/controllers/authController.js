@@ -1,68 +1,132 @@
-const db = require('../config/db');
-const bcrypt = require('bcrypt');
+const db = require("../config/db");
 
-// Register a new customer
-const register = async (req, res) => {
-    const { username, email, password, confirm_password } = req.body;
 
-    if (password !== confirm_password) {
-        return res.json({ message: "Passwords do not match" });
+// =====================================
+// REGISTER
+// =====================================
+exports.register = (req, res) => {
+
+  const {
+    username,
+    email,
+    password
+  } = req.body;
+
+
+  // CHECK IF EMAIL EXISTS
+  const checkSql = `
+    SELECT *
+    FROM users
+    WHERE email = ?
+  `;
+
+  db.query(checkSql, [email], (err, result) => {
+
+    if (err) {
+      return res.status(500).json({
+        message: "Server error"
+      });
     }
 
-    // Check if username already exists
-    db.query("SELECT user_id FROM users WHERE name=?", [username], async (err, result) => {
+    if (result.length > 0) {
+      return res.status(400).json({
+        message: "Email already exists"
+      });
+    }
+
+
+    // INSERT USER
+    const insertSql = `
+      INSERT INTO users
+      (
+        name,
+        email,
+        password,
+        role
+      )
+      VALUES (?, ?, ?, ?)
+    `;
+
+    db.query(
+      insertSql,
+      [
+        username,
+        email,
+        password,
+        "user"
+      ],
+      (err, result) => {
 
         if (err) {
-            console.error(err);
-            return res.json( {message: "Database Error during registration"} );
+          return res.status(500).json({
+            message: "Registration failed"
+          });
         }
 
-        if (result && result.length > 0) {
-            return res.json({ message: "Username already exists" });
-        }
+        res.status(201).json({
+          message: "Registration successful"
+        });
+      }
+    );
 
-    // Hash the password for security before saving
-        const hashed = await bcrypt.hash(password, 10);
-
-        db.query(
-            "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')",
-            [username, email, hashed],
-            (err) => {
-                if (err) {
-                    console.log(err);
-                    return res.json({ message: "Error registering" });
-                };
-                
-                res.json({ message: "Registration successful" });
-            }
-        );
-    });
+  });
 };
 
-// Login an existing user
-const login = (req, res) => {
-    const { username, password } = req.body;
 
-        db.query("SELECT * FROM users WHERE name=?", [username], async (err, result) => {
 
-        if (err){
-            console.log(err);
-            return res.json( {message: "Database error during login" } )
+// =====================================
+// LOGIN
+// =====================================
+exports.login = (req, res) => {
+
+  const {
+    username,
+    password
+  } = req.body;
+
+
+  const sql = `
+    SELECT *
+    FROM users
+    WHERE email = ?
+    AND password = ?
+  `;
+
+  db.query(
+    sql,
+    [
+      username,
+      password
+    ],
+    (err, result) => {
+
+      if (err) {
+        return res.status(500).json({
+          message: "Server error"
+        });
+      }
+
+      if (result.length === 0) {
+        return res.status(401).json({
+          message: "Invalid credentials"
+        });
+      }
+
+
+      const user = result[0];
+
+
+      res.status(200).json({
+        message: "Login success",
+
+        user: {
+          user_id: user.user_id,
+          name: user.name,
+          email: user.email,
+          role: user.role
         }
+      });
 
-        if (!result || result.length === 0) {
-            return res.json({ message: "User not found" });
-        }
-
-        const user = result[0];
-        const match = await bcrypt.compare(password, user.password); // Check if passwords match
-
-        if (!match) {
-            return res.json({ message: "Invalid password" });
-        }
-
-        res.json({ message: "Login success" });
-    });
+    }
+  );
 };
-
-module.exports = { register, login };
