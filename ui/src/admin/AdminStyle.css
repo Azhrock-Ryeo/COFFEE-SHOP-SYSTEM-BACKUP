@@ -168,6 +168,18 @@
   font-style: italic;
 }
 
+.no-image-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.3);
+}
+
 .category-badge {
   background: rgba(184, 134, 60, 0.25);
   color: #d4a055;
@@ -189,12 +201,12 @@
 }
 
 .preview-image {
-  width: 120px;
+  width: 160px;
   height: 120px;
   object-fit: cover;
-  border-radius: 10px;
-  margin-top: 20px;
-  border: 1px solid rgba(212, 160, 85, 0.3);
+  border-radius: 12px;
+  border: 2px solid rgba(212, 160, 85, 0.4);
+  display: block;
 }
 
 .table-image {
@@ -241,7 +253,7 @@
   justify-content: center;
   gap: 8px;
   color: rgba(255, 255, 255, 0.4);
-  font-family: var(--sans, Georgia, serif);
+  font-family: Georgia, serif;
   font-size: 0.8rem;
   transition: border-color 0.2s, background 0.2s;
   text-align: center;
@@ -252,19 +264,6 @@
   border-color: #d4a055;
   background: rgba(212, 160, 85, 0.08);
   color: #d4a055;
-}
-
-.upload-placeholder span {
-  font-size: 2rem;
-}
-
-.preview-image {
-  width: 160px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 2px solid rgba(212, 160, 85, 0.4);
-  display: block;
 }
 
 .remove-image-btn {
@@ -283,13 +282,11 @@
   background: rgba(231, 76, 60, 0.15);
 }
 
-/* Submit btn in image row */
 .admin-image-row .admin-submit-btn {
   align-self: flex-end;
   padding: 14px 28px;
 }
 
-/* Category select matches input style */
 .admin-input option {
   background: #1a1208;
   color: white;
