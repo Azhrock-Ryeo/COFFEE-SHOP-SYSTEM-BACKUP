@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import logo1 from "./assets/logo1.png";
 
 function Register() {
   const [form, setForm] = useState({
@@ -13,32 +14,50 @@ function Register() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("http://localhost:5000/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
+    // 🔒 simple frontend validation
+    if (form.password !== form.confirm_password) {
+      setMessage("Passwords do not match");
+      return;
+    }
 
-    const data = await res.json();
-    setMessage(data.message);
+    try {
+      const res = await fetch("http://localhost:5000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
 
-    if (data.message === "Registration successful") {
-      setTimeout(() => navigate("/login"), 1000);
+      const data = await res.json();
+      setMessage(data.message);
+
+      if (data.message === "Registration successful") {
+        setTimeout(() => navigate("/login"), 1000);
+      }
+    } catch (error) {
+      setMessage("Server error. Please try again.");
+      console.error(error);
     }
   };
 
-  return (
-    <div className="page">
-      <div className="shader"></div>
+return (
+  <div className="page">
+    <div className="shader"></div>
 
-      <div className="logointromod">
-        <div className="register-box">
+    <div className="logointromod">
+
+      <img className="logointro" src={logo1} alt="logo" />
+
+      <div className="register-box">
+
           <h2 className="register-title">Register</h2>
 
           {message && <div className="msg">{message}</div>}
@@ -79,11 +98,12 @@ function Register() {
             <input type="submit" value="Register" />
           </form>
 
-          <Link to="/login">Already have an account?</Link>
-        </div>
+        <Link to="/login">Already have an account?</Link>
+
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default Register;
