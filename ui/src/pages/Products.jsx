@@ -16,6 +16,7 @@ const CATEGORIES = [
 function Products({ setUser }) {
   const [products, setProducts] = useState([]);
   const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
   const [activeCategory, setActiveCategory] = useState("All");
   const categoryRefs = useRef({});
 
@@ -27,9 +28,7 @@ function Products({ setUser }) {
     try {
       const res = await fetch("http://localhost:5000/products");
       const data = await res.json();
-
       console.log(data);
-
       setProducts(data);
     } catch (err) {
       console.log(err);
@@ -38,12 +37,10 @@ function Products({ setUser }) {
 
   useEffect(() => {
     const cat = searchParams.get("cat");
-
     if (cat) {
       const match = CATEGORIES.find(
         (c) => c.toLowerCase() === cat.toLowerCase()
       );
-
       if (match) {
         setActiveCategory(match);
       }
@@ -64,24 +61,26 @@ function Products({ setUser }) {
     }
   }, [activeCategory]);
 
-  const filteredProducts =
-    activeCategory === "All"
-      ? products
-      : products.filter(
-          (p) =>
-            p.category &&
-            p.category.toLowerCase() ===
-              activeCategory.toLowerCase()
-        );
+  const filteredProducts = products
+    .filter((p) =>
+      activeCategory === "All"
+        ? true
+        : p.category &&
+          p.category.toLowerCase() === activeCategory.toLowerCase()
+    )
+    .filter((p) =>
+      searchQuery
+        ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (p.description &&
+            p.description.toLowerCase().includes(searchQuery.toLowerCase()))
+        : true
+    );
 
   const grouped = {};
-
-  if (activeCategory === "All") {
+  if (activeCategory === "All" && !searchQuery) {
     products.forEach((p) => {
       const cat = p.category || "Uncategorized";
-
       if (!grouped[cat]) grouped[cat] = [];
-
       grouped[cat].push(p);
     });
   }
@@ -97,7 +96,30 @@ function Products({ setUser }) {
       <div className="shop-page">
         <section className="products-section">
 
-          {activeCategory === "All" ? (
+          {searchQuery ? (
+            // ── SEARCH RESULTS ──
+            <div className="category-section">
+              <div className="section-title">
+                <h2>Search results for "{searchQuery}"</h2>
+              </div>
+              {filteredProducts.length === 0 ? (
+                <div className="no-products-msg">
+                  No products found for "{searchQuery}".
+                </div>
+              ) : (
+                <div className="products-grid">
+                  {filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.product_id}
+                      product={product}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+          ) : activeCategory === "All" ? (
+            // ── ALL CATEGORIES (grouped) ──
             Object.keys(grouped).length === 0 ? (
               <div className="no-products-msg">
                 No products available.
@@ -112,7 +134,6 @@ function Products({ setUser }) {
                   <div className="section-title">
                     <h2>{cat}</h2>
                   </div>
-
                   <div className="products-grid">
                     {items.map((product) => (
                       <ProductCard
@@ -124,7 +145,9 @@ function Products({ setUser }) {
                 </div>
               ))
             )
+
           ) : (
+            // ── SINGLE CATEGORY ──
             <div
               className="category-section"
               ref={(el) =>
@@ -134,7 +157,6 @@ function Products({ setUser }) {
               <div className="section-title">
                 <h2>{activeCategory}</h2>
               </div>
-
               {filteredProducts.length === 0 ? (
                 <div className="no-products-msg">
                   No products in this category yet.
@@ -159,57 +181,36 @@ function Products({ setUser }) {
 }
 
 function ProductCard({ product }) {
-
   const imageUrl =
-    product.image_url &&
-    product.image_url.trim() !== ""
+    product.image_url && product.image_url.trim() !== ""
       ? product.image_url
       : "https://via.placeholder.com/400x300?text=No+Image";
 
   const addToCart = () => {
-
-    let cart =
-      JSON.parse(localStorage.getItem("cart")) || [];
-
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
     cart.push(product);
-
     localStorage.setItem("cart", JSON.stringify(cart));
-
     alert(`${product.name} added to cart`);
   };
 
   const buyNow = () => {
-
-    const quantity = prompt(
-      "How many would you like?"
-    );
-
+    const quantity = prompt("How many would you like?");
     if (!quantity) return;
-
-    const addons = prompt(
-      "Add-ons? (example: extra shot)"
-    );
-
+    const addons = prompt("Add-ons? (example: extra shot)");
     const order = {
       ...product,
       quantity,
       addons,
       date: new Date().toLocaleString(),
     };
-
-    let orders =
-      JSON.parse(localStorage.getItem("orders")) || [];
-
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
     orders.push(order);
-
     localStorage.setItem("orders", JSON.stringify(orders));
-
     alert("Purchase successful!");
   };
 
   return (
     <div className="product-card">
-
       <img
         src={imageUrl}
         alt={product.name}
@@ -218,35 +219,18 @@ function ProductCard({ product }) {
             "https://via.placeholder.com/400x300?text=Image+Error";
         }}
       />
-
       <div className="product-info">
-
         <h3>{product.name}</h3>
-
-        <p className="product-price">
-          ₱{product.price}
-        </p>
-
+        <p className="product-price">₱{product.price}</p>
         <div className="product-buttons">
-
-          <button
-            className="add-to-cart-btn"
-            onClick={addToCart}
-          >
+          <button className="add-to-cart-btn" onClick={addToCart}>
             Add To Cart
           </button>
-
-          <button
-            className="buy-btn"
-            onClick={buyNow}
-          >
+          <button className="buy-btn" onClick={buyNow}>
             Purchase
           </button>
-
         </div>
-
       </div>
-
     </div>
   );
 }
