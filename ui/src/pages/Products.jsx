@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "./Products.css";
 
@@ -28,7 +28,6 @@ function Products({ setUser }) {
     try {
       const res = await fetch("http://localhost:5000/products");
       const data = await res.json();
-      console.log(data);
       setProducts(data);
     } catch (err) {
       console.log(err);
@@ -41,19 +40,14 @@ function Products({ setUser }) {
       const match = CATEGORIES.find(
         (c) => c.toLowerCase() === cat.toLowerCase()
       );
-      if (match) {
-        setActiveCategory(match);
-      }
+      if (match) setActiveCategory(match);
     } else {
       setActiveCategory("All");
     }
   }, [searchParams]);
 
   useEffect(() => {
-    if (
-      activeCategory !== "All" &&
-      categoryRefs.current[activeCategory]
-    ) {
+    if (activeCategory !== "All" && categoryRefs.current[activeCategory]) {
       categoryRefs.current[activeCategory].scrollIntoView({
         behavior: "smooth",
         block: "start",
@@ -97,7 +91,6 @@ function Products({ setUser }) {
         <section className="products-section">
 
           {searchQuery ? (
-            // ── SEARCH RESULTS ──
             <div className="category-section">
               <div className="section-title">
                 <h2>Search results for "{searchQuery}"</h2>
@@ -109,21 +102,15 @@ function Products({ setUser }) {
               ) : (
                 <div className="products-grid">
                   {filteredProducts.map((product) => (
-                    <ProductCard
-                      key={product.product_id}
-                      product={product}
-                    />
+                    <ProductCard key={product.product_id} product={product} />
                   ))}
                 </div>
               )}
             </div>
 
           ) : activeCategory === "All" ? (
-            // ── ALL CATEGORIES (grouped) ──
             Object.keys(grouped).length === 0 ? (
-              <div className="no-products-msg">
-                No products available.
-              </div>
+              <div className="no-products-msg">No products available.</div>
             ) : (
               Object.entries(grouped).map(([cat, items]) => (
                 <div
@@ -136,10 +123,7 @@ function Products({ setUser }) {
                   </div>
                   <div className="products-grid">
                     {items.map((product) => (
-                      <ProductCard
-                        key={product.product_id}
-                        product={product}
-                      />
+                      <ProductCard key={product.product_id} product={product} />
                     ))}
                   </div>
                 </div>
@@ -147,12 +131,9 @@ function Products({ setUser }) {
             )
 
           ) : (
-            // ── SINGLE CATEGORY ──
             <div
               className="category-section"
-              ref={(el) =>
-                (categoryRefs.current[activeCategory] = el)
-              }
+              ref={(el) => (categoryRefs.current[activeCategory] = el)}
             >
               <div className="section-title">
                 <h2>{activeCategory}</h2>
@@ -164,10 +145,7 @@ function Products({ setUser }) {
               ) : (
                 <div className="products-grid">
                   {filteredProducts.map((product) => (
-                    <ProductCard
-                      key={product.product_id}
-                      product={product}
-                    />
+                    <ProductCard key={product.product_id} product={product} />
                   ))}
                 </div>
               )}
@@ -181,53 +159,30 @@ function Products({ setUser }) {
 }
 
 function ProductCard({ product }) {
+  const navigate = useNavigate();
+
   const imageUrl =
     product.image_url && product.image_url.trim() !== ""
       ? product.image_url
       : "https://via.placeholder.com/400x300?text=No+Image";
 
-  const addToCart = () => {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    cart.push(product);
-    localStorage.setItem("cart", JSON.stringify(cart));
-    alert(`${product.name} added to cart`);
-  };
-
-  const buyNow = () => {
-    const quantity = prompt("How many would you like?");
-    if (!quantity) return;
-    const addons = prompt("Add-ons? (example: extra shot)");
-    const order = {
-      ...product,
-      quantity,
-      addons,
-      date: new Date().toLocaleString(),
-    };
-    let orders = JSON.parse(localStorage.getItem("orders")) || [];
-    orders.push(order);
-    localStorage.setItem("orders", JSON.stringify(orders));
-    alert("Purchase successful!");
-  };
+  const goToItem = () => navigate(`/item/${product.product_id}`);
 
   return (
-    <div className="product-card">
+    <div className="product-card" onClick={goToItem}>
       <img
         src={imageUrl}
         alt={product.name}
         onError={(e) => {
-          e.target.src =
-            "https://via.placeholder.com/400x300?text=Image+Error";
+          e.target.src = "https://via.placeholder.com/400x300?text=Image+Error";
         }}
       />
       <div className="product-info">
-        <h3>{product.name}</h3>
+        <h3 className="product-name-link">{product.name}</h3>
         <p className="product-price">₱{product.price}</p>
         <div className="product-buttons">
-          <button className="add-to-cart-btn" onClick={addToCart}>
-            Add To Cart
-          </button>
-          <button className="buy-btn" onClick={buyNow}>
-            Purchase
+          <button className="buy-btn" onClick={(e) => { e.stopPropagation(); goToItem(); }}>
+            View Item
           </button>
         </div>
       </div>
