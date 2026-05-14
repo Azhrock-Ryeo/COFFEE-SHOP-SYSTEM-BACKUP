@@ -1,62 +1,176 @@
-const db = require('../config/db');
-const bcrypt = require('bcrypt');
+const db = require("../config/db");
+const bcrypt = require("bcryptjs");
 
-// Register a new customer
-const register = async (req, res) => {
-    const { username, email, password, confirm_password } = req.body;
 
-    if (password !== confirm_password) {
-        return res.json({ message: "Passwords do not match" });
-    }
+// =====================================
+// REGISTER
+// =====================================
+exports.register = async (req, res) => {
 
-    // Check if username already exists
-    db.query("SELECT user_id FROM users WHERE name=?", [username], async (err, result) => {
+  const {
+    username,
+    email,
+    password
+  } = req.body;
 
-        if (result.length > 0) {
-            return res.json({ message: "Username already exists" });
+  try {
+
+    // =========================
+    // CHECK EMAIL
+    // =========================
+
+    const checkSql = `
+      SELECT *
+      FROM users
+      WHERE email = ?
+    `;
+
+    db.query(checkSql, [email], async (err, result) => {
+
+      if (err) {
+        return res.status(500).json({
+          message: "Server error"
+        });
+      }
+
+      if (result.length > 0) {
+        return res.status(400).json({
+          message: "Email already exists"
+        });
+      }
+
+      // =========================
+      // HASH PASSWORD
+      // =========================
+
+      const hashedPassword =
+        await bcrypt.hash(password, 10);
+
+      // =========================
+      // INSERT USER
+      // =========================
+
+      const insertSql = `
+        INSERT INTO users
+        (
+          name,
+          email,
+          password,
+          role
+        )
+        VALUES (?, ?, ?, ?)
+      `;
+
+      db.query(
+        insertSql,
+        [
+          username,
+          email,
+          hashedPassword,
+          "user"
+        ],
+        (err, result) => {
+
+          if (err) {
+            return res.status(500).json({
+              message: "Registration failed"
+            });
+          }
+
+          res.status(201).json({
+            message: "Registration successful"
+          });
+
         }
+      );
 
-    // Hash the password for security before saving
-        const hashed = await bcrypt.hash(password, 10);
+    });
 
-        db.query(
-            "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')",
-            [username, email, hashed],
-            (err) => {
-                if (err) {return res.json({ message: "Error registering" })};
-                
-                res.json({ message: "Registration successful" });
-            }
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      message: "Server error"
+    });
+  }
+};
+
+
+
+// =====================================
+// LOGIN
+// =====================================
+exports.login = (req, res) => {
+
+  const {
+    username,
+    password
+  } = req.body;
+
+  // username field = email
+  const sql = `
+    SELECT *
+    FROM users
+    WHERE email = ?
+  `;
+
+  db.query(
+    sql,
+    [username],
+    async (err, result) => {
+
+      if (err) {
+        return res.status(500).json({
+          message: "Server error"
+        });
+      }
+
+      if (result.length === 0) {
+        return res.status(401).json({
+          message: "Invalid credentials"
+        });
+      }
+
+      const user = result[0];
+
+      // =========================
+      // CHECK PASSWORD
+      // =========================
+
+      const validPassword =
+        await bcrypt.compare(
+          password,
+          user.password
         );
-    });
-};
 
-// Login an existing user
-const login = (req, res) => {
-    const { username, password } = req.body;
+      if (!validPassword) {
+        return res.status(401).json({
+          message: "Invalid credentials"
+        });
+      }
 
-    db.query("SELECT * FROM users WHERE name=?", [username], async (err, result) => {
-        if (result.length === 0) {
-            return res.json({ message: "User not found" });
-        }
+      // =========================
+      // LOGIN SUCCESS
+      // =========================
 
-        const user = result[0];
-        const match = await bcrypt.compare(password, user.password);
+      res.status(200).json({
 
-        if (!match) {
-            return res.json({ message: "Invalid password" });
-        }
-
-        // ✅ Return user info so the frontend can save it
-        res.json({ 
         message: "Login success",
-        user: { 
-        id: user.user_id, 
-        username: user.name, 
-        role: user.role 
-    }
-});
-    });
-};
 
-module.exports = { register, login };
+        user: {
+          user_id: user.user_id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          created_at: user.created_at,
+          age: user.age,
+          address: user.address,
+          profile_picture: user.profile_picture
+        }
+
+      });
+
+    }
+  );
+};

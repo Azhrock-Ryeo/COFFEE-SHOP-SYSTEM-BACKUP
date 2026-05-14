@@ -1,9 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 
-import Navbar from "./components/Navbar";
 import Login from "./login";
 import Register from "./register";
+import Home from "./pages/Home";
+import AdminDashboard from "./admin/AdminDashboard";
+import Products from "./pages/Products";
+import Profile from "./pages/Profile";
+import ItemPage from "./pages/ItemPage";
+import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
 import music from "./assets/music.mp3";
 
 function App() {
@@ -16,7 +22,10 @@ function App() {
   useEffect(() => {
     const enableAudio = async () => {
       try {
-        await audioRef.current?.play();
+        if (audioRef.current) {
+          audioRef.current.volume = 0.3;
+          await audioRef.current.play();
+        }
       } catch (err) {
         console.log("Waiting for user interaction...");
       }
@@ -36,112 +45,80 @@ function App() {
 
   return (
     <>
-      {/* GLOBAL MUSIC */}
       <audio ref={audioRef} loop>
         <source src={music} type="audio/mpeg" />
       </audio>
 
       <BrowserRouter>
         <Routes>
+
+          {/* DEFAULT */}
           <Route path="/" element={<Navigate to="/login" />} />
 
+          {/* LOGIN */}
           <Route
             path="/login"
-            element={
-              user ? <Navigate to="/home" /> : <Login setUser={setUser} />
-            }
+            element={user ? <Navigate to="/home" /> : <Login setUser={setUser} />}
           />
 
+          {/* REGISTER */}
           <Route
             path="/register"
-            element={
-              user ? <Navigate to="/home" /> : <Register setUser={setUser} />
-            }
+            element={user ? <Navigate to="/home" /> : <Register setUser={setUser} />}
           />
 
+          {/* HOME */}
           <Route
             path="/home"
-            element={
-              user ? (
-                <>
-                  <Navbar setUser={setUser} />
-                  <h1>Home</h1>
-                </>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
+            element={user ? <Home setUser={setUser} /> : <Navigate to="/login" />}
           />
 
+          {/* PRODUCTS */}
           <Route
             path="/products"
-            element={
-              user ? (
-                <>
-                  <Navbar setUser={setUser} />
-                  <h1>Products</h1>
-                </>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
+            element={user ? <Products setUser={setUser} /> : <Navigate to="/login" />}
           />
 
+          {/* ITEM DETAIL — THIS WAS MISSING */}
           <Route
-            path="/cart"
-            element={
-              user ? (
-                <>
-                  <Navbar setUser={setUser} />
-                  <h1>Cart</h1>
-                </>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
+            path="/item/:id"
+            element={user ? <ItemPage setUser={setUser} /> : <Navigate to="/login" />}
           />
 
-          <Route
-            path="/orders"
-            element={
-              user ? (
-                <>
-                  <Navbar setUser={setUser} />
-                  <h1>Orders</h1>
-                </>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-
+          {/* PROFILE */}
           <Route
             path="/profile"
-            element={
-              user ? (
-                <>
-                  <Navbar setUser={setUser} />
-                  <h1>Profile</h1>
-                </>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
+            element={user ? <Profile setUser={setUser} /> : <Navigate to="/login" />}
           />
 
+          {/* CART */}
+          <Route
+            path="/cart"
+            element={user ? <Cart setUser={setUser} /> : <Navigate to="/login" />}
+          />
+
+          {/* ORDERS */}
+          <Route
+            path="/orders"
+            element={user ? <Orders setUser={setUser} /> : <Navigate to="/login" />}
+          />
+
+          {/* MESSAGES */}
           <Route
             path="/messages"
-            element={
-              user ? (
-                <>
-                  <Navbar setUser={setUser} />
-                  <h1>Messages</h1>
-                </>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
+            element={user ? (
+              <Navigate to="/home" />
+            ) : (
+              <Navigate to="/login" />
+            )}
           />
+
+          {/* ADMIN */}
+          <Route path="/admin" element={<AdminDashboard />} />
+
+          {/* FALLBACK */}
+          <Route path="*" element={<Navigate to="/login" />} />
+
         </Routes>
       </BrowserRouter>
     </>

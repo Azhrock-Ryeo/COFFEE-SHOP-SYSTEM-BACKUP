@@ -1,31 +1,244 @@
-import { Link, useNavigate } from 'react-router-dom'
-import './Navbar.css'
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import "./Navbar.css";
 
-function Navbar({ setUser }) {
-  const navigate = useNavigate()
-  const user = JSON.parse(localStorage.getItem('user'))
+const CATEGORIES = [
+  "All",
+  "Espresso",
+  "Latte",
+  "Tea",
+  "Pastries",
+  "Beans",
+  "Equipment",
+];
+
+function Navbar({
+  setUser,
+  activeCategory,
+  setActiveCategory,
+}) {
+
+  const navigate = useNavigate();
+
+  const user = JSON.parse(
+    localStorage.getItem("user")
+  );
+
+  const [search, setSearch] = useState("");
+
+  const [suggestions, setSuggestions] = useState([]);
 
   const handleLogout = () => {
-    localStorage.removeItem('user')
-    setUser(null) // ← this triggers App to re-render
-    navigate('/login')
-  }
+
+    localStorage.removeItem("user");
+
+    setUser(null);
+
+    navigate("/login");
+  };
+
+  const handleSearch = (e) => {
+
+    e.preventDefault();
+
+    navigate(`/products?search=${search}`);
+
+    setSuggestions([]);
+  };
+
+  const handleCategoryClick = (cat) => {
+
+    if (setActiveCategory)
+      setActiveCategory(cat);
+
+    if (cat === "All") {
+      navigate("/products");
+    } else {
+      navigate(
+        `/products?cat=${cat.toLowerCase()}`
+      );
+    }
+  };
+
+  useEffect(() => {
+
+    fetch("http://localhost:5000/products")
+      .then((res) => res.json())
+      .then((data) => {
+
+        if (search.length > 0) {
+
+          const filtered = data.filter((p) =>
+            p.name
+              .toLowerCase()
+              .includes(search.toLowerCase())
+          );
+
+          setSuggestions(filtered);
+
+        } else {
+          setSuggestions([]);
+        }
+
+      });
+
+  }, [search]);
 
   return (
-    <nav className="navbar">
-      <div className="navbar-logo">☕ Coffee Shop</div>
-      <div className="navbar-links">
-        <Link to="/home" className="nav-link">Home</Link>
-        <Link to="/products" className="nav-link">Products</Link>
-        <Link to="/cart" className="nav-link">🛒 Cart</Link>
-        <Link to="/orders" className="nav-link">Orders</Link>
-        <Link to="/profile" className="nav-link">Profile</Link>
-        <Link to="/messages" className="nav-link">💬 Messages</Link>
-        {user && <span className="nav-user">Hi, {user.username}!</span>}
-        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+    <header className="site-header">
+
+      <div className="topbar">
+
+        <span className="topbar-tagline">
+          Premium Coffee Experience ☕
+        </span>
+
+        <div className="topbar-right">
+
+          {user && (
+            <span>
+              Hi, <strong>{user.username}</strong>
+            </span>
+          )}
+
+          <Link to="/profile">
+            My Account
+          </Link>
+
+          <button
+            className="topbar-logout"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+
+        </div>
+
       </div>
-    </nav>
-  )
+
+      <nav className="navbar-main">
+
+        <Link
+          to="/home"
+          className="navbar-logo"
+        >
+          ☕ Coffee<span>Shop</span>
+        </Link>
+
+        <div className="search-wrapper">
+
+          <form
+            className="search-bar"
+            onSubmit={handleSearch}
+          >
+
+            <input
+              type="text"
+              placeholder="Search coffee..."
+              value={search}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
+              className="search-input"
+            />
+
+            <button
+              type="submit"
+              className="search-btn"
+            >
+              🔍
+            </button>
+
+          </form>
+
+          {suggestions.length > 0 && (
+
+            <div className="search-suggestions">
+
+              {suggestions
+                .slice(0,5)
+                .map((item) => (
+
+                  <div
+                    key={item.product_id}
+                    className="suggestion-item"
+                    onClick={() => {
+
+                      navigate(
+                        `/products?search=${item.name}`
+                      );
+
+                      setSearch(item.name);
+
+                      setSuggestions([]);
+                    }}
+                  >
+                    {item.name}
+                  </div>
+
+              ))}
+
+            </div>
+
+          )}
+
+        </div>
+
+        <div className="navbar-actions">
+
+          <Link to="/home" className="action-btn">
+            🏠
+          </Link>
+
+          <Link
+            to="/products"
+            className="action-btn"
+          >
+            ☕
+          </Link>
+
+          <Link
+            to="/cart"
+            className="action-btn"
+          >
+            🛒
+          </Link>
+
+          <Link
+            to="/orders"
+            className="action-btn"
+          >
+            📦
+          </Link>
+
+        </div>
+
+      </nav>
+
+      <nav className="navbar-categories">
+
+        {CATEGORIES.map((cat) => (
+
+          <button
+            key={cat}
+            className={`cat-link ${
+              activeCategory === cat
+                ? "cat-active"
+                : ""
+            }`}
+            onClick={() =>
+              handleCategoryClick(cat)
+            }
+          >
+            {cat}
+          </button>
+
+        ))}
+
+      </nav>
+
+    </header>
+  );
 }
 
-export default Navbar
+export default Navbar;
